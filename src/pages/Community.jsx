@@ -1,169 +1,118 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useAuth } from "../context/AuthContext";
-import io from "socket.io-client";
-import { formatDistanceToNow } from 'date-fns';
+import { Users, MessageSquare, Award, Calendar, Clock, Search } from 'lucide-react';
+import './Community.css';
 
-// Define message type for better type safety
-interface Message {
-  id?: string;
-  username: string;
-  text: string;
-  timestamp?: Date;
-}
+const Community = () => {
+  // Sample data - replace with your actual data
+  const activeMembers = [
+    { id: 1, name: 'ProGamer99', avatar: 'PG', online: true },
+    { id: 2, name: 'StreamQueen', avatar: 'SQ', online: true },
+    { id: 3, name: 'NoScopeKing', avatar: 'NK', online: false },
+    { id: 4, name: 'HeadshotHero', avatar: 'HH', online: true },
+  ];
 
-const Community: React.FC = () => {
-    const { user } = useAuth();
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [newMessage, setNewMessage] = useState("");
-    const [error, setError] = useState("");
-    const [isLoading, setIsLoading] = useState(true);
-    const messagesEndRef = useRef<HTMLDivElement>(null);
-    const socketRef = useRef<any>(null);
+  const upcomingEvents = [
+    { id: 1, title: 'Weekly Tournament', date: '2025-04-15', game: 'Valorant' },
+    { id: 2, title: 'Community Stream', date: '2025-04-18', game: 'League of Legends' },
+    { id: 3, title: 'New Game Launch', date: '2025-04-22', game: 'Apex Legends' },
+  ];
 
-    useEffect(() => {
-        // Initialize socket connection
-        socketRef.current = io(import.meta.env.VITE_BACKEND_URL, {
-            transports: ["websocket"],
-            reconnection: true,
-            reconnectionAttempts: 5,
-            reconnectionDelay: 2000,
-        });
+  const recentDiscussions = [
+    { id: 1, title: 'Best settings for FPS games?', author: 'ProGamer99', replies: 24 },
+    { id: 2, title: 'Looking for teammates for ranked', author: 'StreamQueen', replies: 8 },
+    { id: 3, title: 'Patch 5.2 meta discussion', author: 'NoScopeKing', replies: 42 },
+  ];
 
-        // Fetch previous messages
-        const fetchMessages = async () => {
-            try {
-                const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/chat`);
-                if (!res.ok) throw new Error('Failed to fetch messages');
-                const data: Message[] = await res.json();
-                
-                // Add timestamps if not present
-                const processedMessages = data.map(msg => ({
-                    ...msg,
-                    timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date()
-                }));
+  return (
+    <div className="community-container">
+      {/* Header */}
+      <header className="community-header">
+        <h1><Users className="icon" /> Community Hub</h1>
+        <p>Connect with fellow gamers, join discussions, and participate in events</p>
+      </header>
 
-                setMessages(processedMessages);
-                setIsLoading(false);
-            } catch (err) {
-                setError("Failed to load chat history.");
-                setIsLoading(false);
-            }
-        };
+      {/* Search Bar */}
+      <div className="community-search">
+        <Search className="search-icon" />
+        <input type="text" placeholder="Search community members, discussions..." />
+      </div>
 
-        fetchMessages();
-
-        // Listen for real-time messages
-        socketRef.current.on("message", (msg: Message) => {
-            const newMsg = {
-                ...msg,
-                timestamp: new Date()
-            };
-            setMessages((prev) => [...prev, newMsg]);
-        });
-
-        return () => {
-            socketRef.current?.disconnect();
-        };
-    }, []);
-
-    useEffect(() => {
-        // Auto-scroll to the latest message
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages]);
-
-    const sendMessage = async (e: React.FormEvent) => {
-        e.preventDefault(); // Prevent form submission
-        
-        if (!newMessage.trim() || !user) return;
-
-        const msgData: Message = { 
-            username: user.username || "Guest", 
-            text: newMessage.trim(),
-            timestamp: new Date()
-        };
-
-        try {
-            socketRef.current.emit("message", msgData);
-            setNewMessage(""); // Clear input
-        } catch (err) {
-            setError("Message failed to send.");
-        }
-    };
-
-    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
-            sendMessage(e as any);
-        }
-    };
-
-    if (isLoading) {
-        return (
-            <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-                <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-blue-500"></div>
-            </div>
-        );
-    }
-
-    return (
-        <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center p-6">
-            <div className="w-full max-w-2xl bg-gray-800 p-4 rounded-lg shadow-lg">
-                <h1 className="text-2xl font-bold mb-4 text-center">💬 Community Chat</h1>
-
-                <div className="h-[500px] overflow-y-auto bg-gray-700 p-4 rounded-lg mb-4 space-y-3">
-                    {messages.length === 0 ? (
-                        <p className="text-gray-400 text-center">No messages yet. Start the conversation!</p>
-                    ) : (
-                        messages.map((msg, index) => (
-                            <div 
-                                key={index} 
-                                className={`p-3 rounded-lg ${
-                                    msg.username === user?.username 
-                                    ? 'bg-blue-800 self-end' 
-                                    : 'bg-gray-600'
-                                }`}
-                            >
-                                <div className="flex justify-between items-center mb-1">
-                                    <span className="font-semibold text-blue-300">
-                                        {msg.username}
-                                    </span>
-                                    <span className="text-xs text-gray-400">
-                                        {formatDistanceToNow(msg.timestamp || new Date(), { addSuffix: true })}
-                                    </span>
-                                </div>
-                                <p>{msg.text}</p>
-                            </div>
-                        ))
-                    )}
-                    <div ref={messagesEndRef} /> 
+      {/* Main Content */}
+      <div className="community-content">
+        {/* Left Column */}
+        <div className="community-column">
+          {/* Active Members */}
+          <section className="community-section">
+            <h2>Active Members</h2>
+            <div className="members-grid">
+              {activeMembers.map(member => (
+                <div key={member.id} className="member-card">
+                  <div className={`member-avatar ${member.online ? 'online' : ''}`}>
+                    {member.avatar}
+                  </div>
+                  <span>{member.name}</span>
+                  {member.online && <div className="online-dot"></div>}
                 </div>
-
-                {error && <p className="text-red-500 text-center mb-2">{error}</p>}
-
-                {user ? (
-                    <form onSubmit={sendMessage} className="flex items-center gap-2">
-                        <input
-                            type="text"
-                            value={newMessage}
-                            onChange={(e) => setNewMessage(e.target.value)}
-                            onKeyDown={handleKeyPress}
-                            placeholder="Type your message..."
-                            className="flex-1 px-3 py-2 bg-gray-700 rounded text-white outline-none focus:ring-2 focus:ring-blue-500"
-                            maxLength={500} // Prevent overly long messages
-                        />
-                        <button
-                            type="submit"
-                            disabled={!newMessage.trim()}
-                            className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            Send
-                        </button>
-                    </form>
-                ) : (
-                    <p className="text-gray-400 text-center">Log in to join the chat.</p>
-                )}
+              ))}
             </div>
+          </section>
+
+          {/* Upcoming Events */}
+          <section className="community-section">
+            <h2><Calendar className="icon" /> Upcoming Events</h2>
+            <div className="events-list">
+              {upcomingEvents.map(event => (
+                <div key={event.id} className="event-card">
+                  <div className="event-date">
+                    <span>{new Date(event.date).toLocaleDateString('en-US', { month: 'short' })}</span>
+                    <span>{new Date(event.date).getDate()}</span>
+                  </div>
+                  <div className="event-info">
+                    <h3>{event.title}</h3>
+                    <p>{event.game}</p>
+                  </div>
+                  <button className="join-button">Join</button>
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
-    );
+
+        {/* Right Column */}
+        <div className="community-column">
+          {/* Recent Discussions */}
+          <section className="community-section">
+            <h2><MessageSquare className="icon" /> Recent Discussions</h2>
+            <div className="discussions-list">
+              {recentDiscussions.map(discussion => (
+                <div key={discussion.id} className="discussion-card">
+                  <h3>{discussion.title}</h3>
+                  <div className="discussion-meta">
+                    <span>By {discussion.author}</span>
+                    <span>{discussion.replies} replies</span>
+                  </div>
+                  <button className="view-button">View Thread</button>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Leaderboard */}
+          <section className="community-section">
+            <h2><Award className="icon" /> Top Players</h2>
+            <div className="leaderboard">
+              {[1, 2, 3, 4, 5].map(position => (
+                <div key={position} className="leaderboard-row">
+                  <span className="rank">{position}</span>
+                  <span className="player">Player_{position}</span>
+                  <span className="points">{1500 - position * 100} pts</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Community;

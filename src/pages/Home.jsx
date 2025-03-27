@@ -1,5 +1,21 @@
+// Home.jsx
 import { useEffect, useState } from "react";
 import axios from "../utils/api";
+import { 
+    Trophy, 
+    Video, 
+    Search, 
+    Bell, 
+    ChevronRight, 
+    Twitch, 
+    Youtube, 
+    Twitter,
+    Home as HomeIcon,
+    Calendar,
+    Users,
+    Monitor
+} from 'lucide-react';
+import './Home.css';
 
 const Home = () => {
     const [events, setEvents] = useState([]);
@@ -9,9 +25,8 @@ const Home = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const eventsRes = await axios.get("/events/latest");
-                const videosRes = await axios.get("/videos/latest");
-
+                const eventsRes = await axios.get("/events");
+                const videosRes = await axios.get("/videos");
                 setEvents(eventsRes.data || []);
                 setVideos(videosRes.data || []);
             } catch (error) {
@@ -20,91 +35,96 @@ const Home = () => {
                 setLoading(false);
             }
         };
-
         fetchData();
     }, []);
 
     return (
-        <div className="bg-[#18181b] text-white min-h-screen p-6 flex">
-            {/* Sidebar */}
-            <aside className="w-1/4 bg-gray-900 p-4 rounded-lg shadow-lg">
-                <h2 className="text-xl font-bold text-purple-400 border-b-2 border-purple-500 pb-2">Categories</h2>
-                <ul className="mt-4 space-y-2">
-                    {["Shooter", "RPG", "MOBA", "Battle Royale", "Sports", "Strategy"].map((category, index) => (
-                        <li key={index} className="bg-gray-800 p-2 rounded-lg shadow hover:bg-gray-700 cursor-pointer">
-                            {category}
-                        </li>
-                    ))}
-                </ul>
-            </aside>
-
-            {/* Main Content */}
-            <div className="w-3/4 pl-6">
-                {/* Navigation Bar */}
-                <nav className="flex justify-between items-center mb-6 p-4 bg-gray-900 rounded-lg shadow-lg">
-                    <h1 className="text-3xl font-bold text-purple-400">Esports Hub</h1>
-                    <input type="text" placeholder="Search..." className="p-2 rounded-lg bg-gray-800 text-white" />
-                    <div className="flex space-x-4">
-                        <button className="p-2 bg-purple-600 rounded-lg">Sign In</button>
-                        <span className="p-2 bg-gray-800 rounded-lg">🔔</span>
+        <div className="app-container">
+            {/* Navigation is already implemented elsewhere */}
+            
+            <div className="content-container">
+                {/* Sidebar */}
+                <aside className="sidebar">
+                    <h2 className="sidebar-title">
+                        <Trophy className="icon" /> Categories
+                    </h2>
+                    <div className="categories-grid">
+                        {["Shooter", "RPG", "MOBA", "Battle Royale", "Sports", "Strategy"].map((category) => (
+                            <div key={category} className="category-card">
+                                <span>{category}</span>
+                                <ChevronRight className="arrow-icon" />
+                            </div>
+                        ))}
                     </div>
-                </nav>
+                    <div className="sidebar-footer">
+                        <h3>Esports Hub</h3>
+                        <p>The ultimate battleground for gamers...</p>
+                    </div>
+                </aside>
 
-                {/* Featured Banner */}
-                <div className="bg-purple-600 p-6 text-center rounded-lg shadow-lg mb-6">
-                    <h2 className="text-2xl font-semibold">Trending Esports Event</h2>
-                    <button className="mt-2 bg-gray-800 px-4 py-2 rounded-lg">Live Now</button>
-                </div>
+                {/* Main Content */}
+                <main className="main-content">
+                    {/* Featured Banner */}
+                    <div className="featured-banner">
+                        <h2>Global Esports Championship</h2>
+                        <p>Live Now: Top Teams Battling for Glory</p>
+                        <button className="watch-button">Watch Live</button>
+                    </div>
 
-                {loading ? (
-                    <p className="text-gray-300 text-center">Loading...</p>
-                ) : (
-                    <>
-                        {/* Latest Events Section */}
-                        <section className="mt-8 bg-gray-900 p-6 rounded-lg shadow-lg">
-                            <h2 className="text-2xl font-semibold border-b-4 border-purple-500 pb-2">Latest Events</h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-                                {events.length > 0 ? (
-                                    events.map((event) => (
-                                        <div key={event._id} className="bg-gray-800 p-4 rounded-lg shadow-lg hover:scale-105 transition-transform">
-                                            <p className="text-lg font-semibold">{event.title}</p>
+                    {/* Events Section */}
+                    <section className="events-section">
+                        <div className="section-header">
+                            <h2><Trophy className="icon" /> Latest Events</h2>
+                            <a href="#">View All</a>
+                        </div>
+                        <div className="cards-grid">
+                            {loading ? (
+                                <div className="loader">Loading...</div>
+                            ) : events.length > 0 ? (
+                                events.map(event => (
+                                    <div key={event.id} className="event-card">
+                                        <h3>{event.title}</h3>
+                                        <p>{event.description || 'Upcoming Tournament'}</p>
+                                        <div className="card-footer">
+                                            <span>Registration Open</span>
+                                            <ChevronRight className="arrow-icon" />
                                         </div>
-                                    ))
-                                ) : (
-                                    <p className="text-gray-300 text-center p-4 bg-gray-800 rounded-lg">No events available. Stay tuned for upcoming tournaments!</p>
-                                )}
-                            </div>
-                        </section>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="no-items">No events available. Stay tuned!</p>
+                            )}
+                        </div>
+                    </section>
 
-                        {/* Latest Videos Section */}
-                        <section className="mt-8 bg-gray-900 p-6 rounded-lg shadow-lg">
-                            <h2 className="text-2xl font-semibold border-b-4 border-blue-500 pb-2">Latest Videos</h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-                                {videos.length > 0 ? (
-                                    videos.map((video) => (
-                                        <div key={video._id} className="bg-gray-800 p-4 rounded-lg shadow-lg hover:scale-105 transition-transform">
-                                            <p className="text-lg font-semibold">{video.title}</p>
+                    {/* Videos Section */}
+                    <section className="videos-section">
+                        <div className="section-header">
+                            <h2><Video className="icon" /> Latest Videos</h2>
+                            <a href="#">View All</a>
+                        </div>
+                        <div className="cards-grid">
+                            {loading ? (
+                                <div className="loader">Loading...</div>
+                            ) : videos.length > 0 ? (
+                                videos.map(video => (
+                                    <div key={video.id} className="video-card">
+                                        <h3>{video.title}</h3>
+                                        <p>{video.description || 'Gameplay Highlights'}</p>
+                                        <div className="card-footer">
+                                            <span>Trending</span>
+                                            <ChevronRight className="arrow-icon" />
                                         </div>
-                                    ))
-                                ) : (
-                                    <p className="text-gray-300 text-center p-4 bg-gray-800 rounded-lg">No videos uploaded yet. Check back later!</p>
-                                )}
-                            </div>
-                        </section>
-
-                        {/* Footer */}
-                        <footer className="mt-8 bg-gray-900 p-4 rounded-lg text-center text-gray-400">
-                            <p>&copy; 2025 Esports Hub. All Rights Reserved.</p>
-                            <div className="flex justify-center space-x-4 mt-2">
-                                <a href="#" className="hover:text-purple-400">About Us</a>
-                                <a href="#" className="hover:text-purple-400">Contact</a>
-                                <a href="#" className="hover:text-purple-400">Privacy Policy</a>
-                                <a href="#" className="hover:text-purple-400">Terms & Conditions</a>
-                            </div>
-                        </footer>
-                    </>
-                )}
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="no-items">No videos available. Check back soon!</p>
+                            )}
+                        </div>
+                    </section>
+                </main>
             </div>
+
         </div>
     );
 };

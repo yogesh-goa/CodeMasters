@@ -1,46 +1,133 @@
-import { useEffect, useState } from "react";
-import axios from "../utils/api";
-import EventCard from "../components/EventCard";
+import { useState } from 'react';
+import { Calendar, Clock, Trophy, Users, ChevronRight } from 'lucide-react';
+import './Events.css';
 
 const Events = () => {
-    const [events, setEvents] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState('upcoming');
+  
+  // Sample events data
+  const events = {
+    upcoming: [
+      {
+        id: 1,
+        title: 'Valorant Champions Tour',
+        game: 'Valorant',
+        date: '2023-12-15',
+        time: '19:00',
+        participants: 32,
+        prize: '$50,000'
+      },
+      {
+        id: 2,
+        title: 'League of Legends World Championship',
+        game: 'League of Legends',
+        date: '2023-12-20',
+        time: '15:00',
+        participants: 16,
+        prize: '$100,000'
+      }
+    ],
+    ongoing: [
+      {
+        id: 3,
+        title: 'CS:GO Major Tournament',
+        game: 'Counter-Strike',
+        date: '2023-12-10',
+        time: '14:00',
+        participants: 24,
+        prize: '$75,000',
+        live: true
+      }
+    ],
+    past: [
+      {
+        id: 4,
+        title: 'Dota 2 International',
+        game: 'Dota 2',
+        date: '2023-11-25',
+        participants: 18,
+        prize: '$250,000',
+        winner: 'Team Spirit'
+      }
+    ]
+  };
 
-    useEffect(() => {
-        const fetchEvents = async () => {
-            try {
-                const response = await axios.get("/events");
-                setEvents(response.data);
-            } catch (err) {
-                setError("Failed to load events. Please try again later.");
-            } finally {
-                setLoading(false);
-            }
-        };
+  return (
+    <div className="events-page">
+      <div className="events-header">
+        <h1><Trophy size={28} className="icon" /> Tournaments & Events</h1>
+        <div className="events-tabs">
+          <button 
+            className={activeTab === 'upcoming' ? 'active' : ''}
+            onClick={() => setActiveTab('upcoming')}
+          >
+            Upcoming
+          </button>
+          <button 
+            className={activeTab === 'ongoing' ? 'active' : ''}
+            onClick={() => setActiveTab('ongoing')}
+          >
+            Ongoing
+          </button>
+          <button 
+            className={activeTab === 'past' ? 'active' : ''}
+            onClick={() => setActiveTab('past')}
+          >
+            Past Events
+          </button>
+        </div>
+      </div>
 
-        fetchEvents();
-    }, []);
-
-    return (
-        <div className="min-h-screen bg-gray-900 text-white px-6 py-12">
-        <div className="max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-6">Upcoming Tournaments & Events</h2>
-
-        {loading && <p className="text-center text-gray-400">Loading events...</p>}
-        {error && <p className="text-center text-red-500">{error}</p>}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {!loading && events.length === 0 && (
-            <p className="col-span-full text-center text-gray-400">No upcoming events found.</p>
-        )}
-        {events.map((event) => (
-            <EventCard key={event._id} event={event} />
+      <div className="events-grid">
+        {events[activeTab].map(event => (
+          <div key={event.id} className="event-card">
+            <div className="event-game">{event.game}</div>
+            <h3 className="event-title">{event.title}</h3>
+            
+            <div className="event-details">
+              <div className="detail">
+                <Calendar size={16} />
+                <span>{new Date(event.date).toLocaleDateString('en-US', { 
+                  month: 'short', 
+                  day: 'numeric',
+                  year: 'numeric'
+                })}</span>
+              </div>
+              
+              {event.time && (
+                <div className="detail">
+                  <Clock size={16} />
+                  <span>{event.time} UTC</span>
+                </div>
+              )}
+              
+              <div className="detail">
+                <Users size={16} />
+                <span>{event.participants} Teams</span>
+              </div>
+              
+              <div className="detail prize">
+                <Trophy size={16} />
+                <span>{event.prize}</span>
+              </div>
+            </div>
+            
+            {event.live && <div className="live-badge">LIVE NOW</div>}
+            {event.winner && (
+              <div className="winner">
+                Winner: <span>{event.winner}</span>
+              </div>
+            )}
+            
+            <button className="event-action">
+              {activeTab === 'past' ? 'View Recap' : 'Register Now'}
+              <ChevronRight size={18} />
+            </button>
+          </div>
         ))}
-        </div>
-        </div>
-        </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default Events;

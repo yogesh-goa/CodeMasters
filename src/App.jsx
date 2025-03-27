@@ -6,6 +6,10 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Terms from "./pages/Terms";  // ✅ Import the Terms Page
+import Community from './pages/Community';
+import Event from './pages/Events';
+import Videos from './pages/Videos';
+import Dashboard from "./pages/Dashboard";
 
 const App = () => {
   return (
@@ -17,11 +21,17 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/terms" element={<Terms />} />  {/* ✅ Add this line */}
+          <Route path="/community" element={<Community />} />
+          <Route path="/Events" element={<Event />} />
+          <Route path="/Videos" element={<Videos />} />
+          <Route path="/Dashboard" element={<Dashboard />} />
         </Routes>
       </main>
       <Footer />
     </div>
   );
 };
+
+
 
 export default App;
