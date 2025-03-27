@@ -2,7 +2,7 @@
 ##Project Demo
 ## Google Drive Link
 
-You can access the file [Project Demo](https://drive.google.com/file/d/1J4DJI19RjKroNaQFH1M46_QatJByygUu/view?usp=drive_link).
+[Project Demo](https://drive.google.com/file/d/1J4DJI19RjKroNaQFH1M46_QatJByygUu/view?usp=drive_link).
 ## Table of Contents
 - [Team Name](#team-name)
 - [Team Members](#team-members)
