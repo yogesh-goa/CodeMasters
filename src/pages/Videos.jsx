@@ -6,7 +6,6 @@ const Videos = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
 
-  // Sample video data
   const videos = [
     {
       id: 1,
@@ -14,7 +13,7 @@ const Videos = () => {
       game: 'Valorant',
       views: '1.2M',
       duration: '32:45',
-      thumbnail: 'https://via.placeholder.com/400x225/1a1a2e/7a00ff?text=Valorant',
+      videoId: 'Jn-wssoS-9Y', 
       category: 'tournaments'
     },
     {
@@ -23,7 +22,7 @@ const Videos = () => {
       game: 'League of Legends',
       views: '856K',
       duration: '12:18',
-      thumbnail: 'https://via.placeholder.com/400x225/1a1a2e/7a00ff?text=LoL',
+      videoId: '3E14FQRE8tA',
       category: 'highlights'
     },
     {
@@ -32,7 +31,7 @@ const Videos = () => {
       game: 'Counter-Strike',
       views: '723K',
       duration: '24:56',
-      thumbnail: 'https://via.placeholder.com/400x225/1a1a2e/7a00ff?text=CSGO',
+      videoId: 'xGSK5zMsnrM',
       category: 'recaps'
     },
     {
@@ -41,7 +40,7 @@ const Videos = () => {
       game: 'Dota 2',
       views: '1.5M',
       duration: '45:22',
-      thumbnail: 'https://via.placeholder.com/400x225/1a1a2e/7a00ff?text=Dota2',
+      videoId: 'VbWl8ZKpZzU',
       category: 'tournaments'
     },
     {
@@ -50,7 +49,7 @@ const Videos = () => {
       game: 'Apex Legends',
       views: '642K',
       duration: '28:14',
-      thumbnail: 'https://via.placeholder.com/400x225/1a1a2e/7a00ff?text=Apex',
+      videoId: '19y0TgfaojA',
       category: 'tournaments'
     },
     {
@@ -59,7 +58,7 @@ const Videos = () => {
       game: 'Overwatch',
       views: '512K',
       duration: '15:30',
-      thumbnail: 'https://via.placeholder.com/400x225/1a1a2e/7a00ff?text=OW',
+      videoId: 'wUmgwbo5apI',
       category: 'highlights'
     }
   ];
@@ -115,10 +114,15 @@ const Videos = () => {
         {filteredVideos.map(video => (
           <div key={video.id} className="video-card">
             <div className="video-thumbnail">
-              <img src={video.thumbnail} alt={video.title} />
-              <div className="play-overlay">
-                <Play size={24} fill="#fff" />
-              </div>
+              <iframe
+                width="100%"
+                height="225"
+                src={`https://www.youtube.com/embed/${video.videoId}?autoplay=0&rel=0`}
+                title={video.title}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
               <div className="duration-badge">
                 <Clock size={12} />
                 <span>{video.duration}</span>
