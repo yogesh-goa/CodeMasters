@@ -1,16 +1,29 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { FaUser, FaLock } from "react-icons/fa";
-import "./Login.css"; // Import futuristic styles
+import "./Login.css";
 
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const { login, user } = useAuth();
+    const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Logging in with:", { email, password });
-        // Add login logic here (API call, authentication, etc.)
+        try {
+            await login(email, password);
+
+            // Redirect based on role
+            if (user?.role === "organizer") {
+                navigate("/organizer-dashboard");
+            } else {
+                navigate("/profile");
+            }
+        } catch (error) {
+            console.error("Login failed:", error);
+        }
     };
 
     return (
@@ -20,7 +33,6 @@ const Login = () => {
         <p className="login-subtitle">Enter your credentials to access the eSports universe</p>
 
         <form onSubmit={handleSubmit} className="login-form">
-        {/* Email Input */}
         <div className="input-group">
         <FaUser className="icon" />
         <input
@@ -32,7 +44,6 @@ const Login = () => {
         />
         </div>
 
-        {/* Password Input */}
         <div className="input-group">
         <FaLock className="icon" />
         <input
@@ -44,14 +55,8 @@ const Login = () => {
         />
         </div>
 
-        {/* Submit Button */}
         <button type="submit" className="login-btn">Log In</button>
         </form>
-
-        <div className="login-footer">
-        <p>Don't have an account? <Link to="/register">Register</Link></p>
-        <p><Link to="/forgot-password">Forgot Password?</Link></p>
-        </div>
         </div>
         </div>
     );
